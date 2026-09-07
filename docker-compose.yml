@@ -1,0 +1,31 @@
+# Set POSTGRES_PASSWORD in the local .env file to the existing PostgreSQL password.
+# Use the same password as the DATABASE_URL connection setting.
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.5-pg16
+    container_name: eft-company-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: eft_matcher
+      POSTGRES_USER: eft_user
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - eft_postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U eft_user -d eft_matcher"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  eft_postgres_data:
